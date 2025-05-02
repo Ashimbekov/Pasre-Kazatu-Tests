@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Прохождение теста {{ test_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 16px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .question {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin: 20px auto;
+            padding: 18px;
+            max-width: 700px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question p {
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .variant {
+            display: block;
+            padding: 14px 16px;
+            margin: 10px 0;
+            background-color: #f0f0f0;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+        }
+
+        .variant:hover {
+            background-color: #e0e0e0;
+        }
+
+        .variant.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .variant.wrong {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .variant.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .stats {
+                font-size: 16px;
+            }
+
+            .question {
+                padding: 16px;
+                margin: 16px 0;
+            }
+
+            .variant {
+                font-size: 15px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест {{ test_name }}</h1>
+
+    <div class="stats">
+        Правильных: <span id="correct">0</span> |
+        Неправильных: <span id="wrong">0</span> |
+        Всего: <span id="total">{{ questions|length }}</span>
+    </div>
+
+    <div id="quiz">
+        {% for q in questions %}
+            <div class="question" data-question-id="{{ q.question_id }}">
+                <p>{{ loop.index }}. {{ q.question }}</p>
+                {% for v in q.variants %}
+                    <div class="variant"
+                         data-is-correct="{{ '1' if v.is_correct else '0' }}"
+                         data-variant-text="{{ v.text }}">
+                        {{ v.text }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        let correctCount = 0;
+        let wrongCount = 0;
+
+        document.querySelectorAll('.question').forEach(questionEl => {
+            const variants = questionEl.querySelectorAll('.variant');
+            let answered = false;
+
+            variants.forEach(variantEl => {
+                variantEl.addEventListener('click', () => {
+                    if (answered) return;
+
+                    answered = true;
+                    const isCorrect = variantEl.dataset.isCorrect === '1';
+
+                    if (isCorrect) {
+                        variantEl.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        variantEl.classList.add('wrong');
+                        wrongCount++;
+                        variants.forEach(v => {
+                            if (v.dataset.isCorrect === '1') {
+                                v.classList.add('correct');
+                            }
+                        });
+                    }
+
+                    variants.forEach(v => v.classList.add('disabled'));
+
+                    document.getElementById('correct').textContent = correctCount;
+                    document.getElementById('wrong').textContent = wrongCount;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
