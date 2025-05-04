@@ -186,6 +186,25 @@ def take_test_html(test_id):
     conn.close()
     return render_template("take_test.html", test_id=test_id, test_name=test_name, questions=questions)
 
+@app.route("/test/<int:test_id>/delete", methods=["POST"])
+def delete_test(test_id):
+    conn = sqlite3.connect(app.config["DATABASE"])
+    c = conn.cursor()
+
+    c.execute("SELECT id FROM questions WHERE test_id=?", (test_id,))
+    question_ids = [row[0] for row in c.fetchall()]
+
+    for qid in question_ids:
+        c.execute("DELETE FROM variants WHERE question_id=?", (qid,))
+
+    c.execute("DELETE FROM questions WHERE test_id=?", (test_id,))
+
+    c.execute("DELETE FROM tests WHERE id=?", (test_id,))
+
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for("list_tests_html"))
 
 
 

@@ -6,10 +6,17 @@
 </head>
 <body>
     <h1>Доступные тесты</h1>
+    <p><a href="/">Главная страница</a></p>
     <ul>
         {% for id, name in tests %}
-            <li><a href="/test/{{ id }}/html">{{ name }}</a></li>
+            <li>
+                <a href="/test/{{ id }}/html">{{ name }}</a>
+                <form action="/test/{{ id }}/delete" method="post" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Удалить тест {{ name }}?')"> Удалить</button>
+                </form>
+            </li>
         {% endfor %}
     </ul>
+
 </body>
 </html>
